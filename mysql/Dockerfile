@@ -26,6 +26,8 @@ RUN apt-get clean --yes
 # Setup MySQL
 COPY ./conf.d /etc/mysql/conf.d
 COPY ./mysql.conf.d /etc/mysql/mysql.conf.d
+COPY grant.sql /
+RUN /usr/bin/mysqld_safe & sleep 10s && mysql < /grant.sql
 
 # Entrypoint
 COPY init.sh /
