@@ -18,7 +18,7 @@ RUN update-locale LANG=en_US.UTF-8
 RUN . /etc/default/locale
 
 # Install cassandra
-RUN apt-get install python-pip
+RUN apt-get install --yes procps python-pip
 RUN pip install cassandra-driver
 RUN echo 'CQLSH_NO_BUNDLED=true' > /etc/environment
 RUN gpg --keyserver pgp.mit.edu --recv-keys 0353B12C
