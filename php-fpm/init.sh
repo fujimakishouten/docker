@@ -5,12 +5,17 @@
 
 
 
-ln --symbolic /data/conf/php.ini /etc/php5/fpm
-ln --symbolic /data/conf/php-fpm.conf /etc/php5/fpm
-ln --symbolic /data/conf/pool.d /etc/php5/fpm
-ln --symbolic /data/www /var
+# Logs directory
+if [ ! -d /var/log/php7 ]; then
+    mkdir /var/log/php7
+fi
 
-/usr/sbin/php5-fpm --nodaemonize
+# Document root directory
+if [ ! -d /var/www/html ]; then
+    mkdir /var/www/html
+fi
+
+/usr/sbin/php-fpm7 --nodaemonize
 
 
 

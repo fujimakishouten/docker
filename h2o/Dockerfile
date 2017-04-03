@@ -1,49 +1,31 @@
-FROM debian:unstable
+FROM alpine:edge
+LABEL maintainer "fujimakishouten <fujimakishouten@fujimakishouten.com>"
 
-MAINTAINER fujimakishouten <info@fujimakishouten.com>
+# Environment variables
+ENV LANGUAE C.UTF-8
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
-# APT
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update
-RUN apt-get install --yes apt-utils
+# Install
+RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && apk update \
+    && apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+    && echo "Asia/Tokyo" > /etc/timezone \
+    && apk del tzdata \
+    && apk add --no-cache  h2o
 
-# Timezone
-RUN echo 'Asia/Tokyo' > /etc/timezone
-RUN dpkg-reconfigure tzdata
-
-# Locale
-RUN echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
-RUN apt-get install --yes locales
-RUN update-locale LANG=en_US.UTF-8
-RUN . /etc/default/locale
-
-# Install dependences
-RUN apt-get install --yes git build-essential cmake libssl-dev libyaml-dev
-
-# APT
-RUN apt-get clean --yes
-
-# Checkout soruces
-RUN mkdir -p /opt/h2o/src
-RUN git clone https://github.com/h2o/h2o.git /opt/h2o/src
-
-# Bulid
-WORKDIR /opt/h2o/src
-RUN cmake -DCMAKE_INSTALL_PREFIX=/opt/h2o .
-RUN make
-RUN make install
-
-# Setup h2o
-RUN mkdir -p /opt/h2o/etc
-COPY ./h2o.conf /opt/h2o/etc/h2o.conf
-
-# Entrypoint
+# Settings
+COPY ./h2o.conf /etc/h2o.conf
 COPY ./init.sh /
 RUN chmod 755 /init.sh
+
+# Entrypoint
 ENTRYPOINT ["/init.sh"]
 
 # Expose
-EXPOSE 80
+EXPOSE 80 443
 
 # Volume
-VOLUME ["/var/lib/h2o"]
+VOLUME ["/var/www", "/var/log/h2o"]
+

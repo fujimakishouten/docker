@@ -5,8 +5,8 @@
 
 
 
-mkdir -p /var/lib/h2o/logs
-/opt/h2o/bin/h2o -c /opt/h2o/etc/h2o.conf
+/usr/bin/h2o -c /etc/h2o.conf
+
 
 
 # Local variables:
@@ -14,3 +14,4 @@ mkdir -p /var/lib/h2o/logs
 # c-basic-offset: 4
 # c-hanging-comment-ender-p: nil
 # End:
+

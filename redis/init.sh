@@ -5,11 +5,7 @@
 
 
 
-# Install modules
-cd /var/lib/nodejs
-npm install --global eslint istanbul mocha pm2
-npm install
-pm2 start --no-daemon server.js -- -c ./config/local
+/usr/bin/redis-server /etc/redis.conf
 
 
 

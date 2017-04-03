@@ -5,7 +5,38 @@
 
 
 
-/usr/bin/mysqld_safe
+# root user password
+if [ -z $MYSQL_ROOT_PASSWORD ]; then
+    MYSQL_ROOT_PASSWORD=password
+fi
+
+
+# Database directory
+if [ ! -d /var/lib/mysql ]; then
+    mkdir /var/lib/mysql
+fi
+
+# Logs directory
+if [ ! -d /var/log/mysql ]; then
+    mkdir /var/log/mysql
+fi
+
+# Run directory
+if [ ! -d /run/mysqld ]; then
+    mkdir /run/mysqld
+fi
+
+# Setup mysql
+chown -R mysql:mysql /var/lib/mysql
+chown -R mysql:mysql /var/log/mysql
+chown -R mysql:mysql /run/mysqld
+/usr/bin/mysql_install_db --user=mysql
+su -s /bin/sh -c "/usr/bin/mysqld_safe & sleep 1" mysql
+echo "GRANT ALL PRIVILEGES ON *.* TO root@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION;" | mysql -u root
+/usr/bin/mysqladmin --user root password $MYSQL_ROOT_PASSWORD
+/usr/bin/mysqladmin --user root --password=$MYSQL_ROOT_PASSWORD shutdown
+
+su -s /bin/sh -c "/usr/bin/mysqld_safe" mysql
 
 
 
@@ -14,3 +45,4 @@
 # c-basic-offset: 4
 # c-hanging-comment-ender-p: nil
 # End:
+

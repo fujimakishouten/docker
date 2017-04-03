@@ -1,31 +1,25 @@
-FROM ubuntu:trusty
+FROM alpine:edge
+LABEL maintainer "fujimakishouten <fujimakishouten@fujimakishouten.com>"
 
-MAINTAINER fujimakishouten <info@fujimakishouten.com>
+# Environment variables
+ENV LANGUAE C.UTF-8
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
-# APT
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update
+# Install
+RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && apk update \
+    && apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+    && echo "Asia/Tokyo" > /etc/timezone \
+    && apk del tzdata \
+    && apk add --no-cache nginx \
+    && ln -s /var/www/localhost/htdocs /var/www/html
 
-# Timezone
-RUN echo 'Asia/Tokyo' > /etc/timezone
-RUN dpkg-reconfigure tzdata
-
-# Locale
-RUN locale-gen en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8
-RUN . /etc/default/locale
-
-# Install Nginx
-RUN apt-get install --yes nginx
-RUN mv /etc/nginx/nginx.conf /etc/nginx.conf.original
-RUN mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.original
-RUN rmdir /var/log/nginx
-
-# APT
-RUN apt-get clean --yes
-
-# Initialize shell
-COPY init.sh /
+# Settings
+COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./default.conf /etc/nginx/conf.d/default.conf
+COPY ./init.sh /
 RUN chmod 755 /init.sh
 
 # Entrypoint
@@ -35,5 +29,5 @@ ENTRYPOINT ["/init.sh"]
 EXPOSE 80 443
 
 # Volume
-VOLUME ["/data"]
+VOLUME ["/var/www/html", "/var/log/nginx"]
 

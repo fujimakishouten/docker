@@ -1,39 +1,31 @@
-FROM debian:unstable
+FROM alpine:edge
+LABEL maintainer "fujimakishouten <fujimakishouten@fujimakishouten.com>"
 
-MAINTAINER fujimakishouten <info@fujimakishouten.com>
+# Environment variables
+ENV LANGUAE C.UTF-8
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
-# APT
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update
-RUN apt-get install --yes apt-utils
+# Install
+RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && apk update \
+    && apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+    && echo "Asia/Tokyo" > /etc/timezone \
+    && apk del tzdata \
+    && apk add --no-cache  mongodb
 
-# Timezone
-RUN echo 'Asia/Tokyo' > /etc/timezone
-RUN dpkg-reconfigure tzdata
-
-# Locale
-RUN echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
-RUN apt-get install --yes locales
-RUN update-locale LANG=en_US.UTF-8
-RUN . /etc/default/locale
-
-# Install mongodb
-RUN apt-get install --yes mongodb
-
-# APT
-RUN apt-get clean --yes
-
-# Setup h2o
-COPY ./mongodb.conf /etc/mongodb.conf
+# Settings
+COPY ./mongodb.conf /etc/conf.d/mongodb.conf
+COPY ./init.sh /
+RUN chmod 755 /init.sh
 
 # Entrypoint
-COPY init.sh /
-RUN chmod 755 /init.sh
 ENTRYPOINT ["/init.sh"]
 
 # Expose
 EXPOSE 27017 27018 27019 28017
 
 # Volume
-VOLUME ["/var/lib/mongodb"]
+VOLUME ["/var/lib/mongodb", "/var/log/mongodb"]
 

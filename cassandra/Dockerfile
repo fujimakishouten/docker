@@ -1,44 +1,40 @@
-FROM debian:unstable
+FROM alpine:edge
+LABEL maintainer "fujimakishouten <fujimakishouten@fujimakishouten.com>"
 
-MAINTAINER fujimakishouten <info@fujimakishouten.com>
+# Cassandra version
+ENV CASSANDRA_VERSION 3.10
 
-# APT
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update
-RUN apt-get install --yes apt-utils
+# Environment variables
+ENV LANGUAE C.UTF-8
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
-# Timezone
-RUN echo 'Asia/Tokyo' > /etc/timezone
-RUN dpkg-reconfigure tzdata
+# Install
+RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && apk update \
+    && apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+    && echo "Asia/Tokyo" > /etc/timezone \
+    && apk del tzdata \
+    && apk add --no-cache openjdk8-jre \
+    && mkdir /opt \
+    && wget http://ftp.riken.jp/net/apache/cassandra/${CASSANDRA_VERSION}/apache-cassandra-${CASSANDRA_VERSION}-bin.tar.gz \
+    && tar zxf apache-cassandra-${CASSANDRA_VERSION}-bin.tar.gz -C /opt \
+    && ln -s /opt/apache-cassandra-${CASSANDRA_VERSION} /opt/cassandra \
+    && rm apache-cassandra-${CASSANDRA_VERSION}-bin.tar.gz
 
-# Locale
-RUN echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
-RUN apt-get install --yes locales
-RUN update-locale LANG=en_US.UTF-8
-RUN . /etc/default/locale
-
-# Install cassandra
-RUN apt-get install --yes procps python-pip
-RUN pip install cassandra-driver
-RUN echo 'CQLSH_NO_BUNDLED=true' > /etc/environment
-RUN gpg --keyserver pgp.mit.edu --recv-keys 0353B12C
-RUN gpg --export --armor 0353B12C | apt-key add -
-RUN echo 'deb http://www.apache.org/dist/cassandra/debian 37x main' > /etc/apt/sources.list.d/cassandra.list
-RUN echo 'deb-src http://www.apache.org/dist/cassandra/debian 37x main' >> /etc/apt/sources.list.d/cassandra.list
-RUN apt-get update
-RUN apt-get install --yes cassandra cassandra-tools
-
-# APT
-RUN apt-get clean --yes
+# Settings
+COPY ./cassandra-env.sh /opt/cassandra/conf/cassandra-env.sh
+COPY ./cassandra.yaml /opt/cassandra/conf/cassandra.yaml
+COPY ./init.sh /
+RUN chmod 755 /init.sh
 
 # Entrypoint
-COPY init.sh /
-RUN chmod 755 /init.sh
 ENTRYPOINT ["/init.sh"]
 
 # Expose
 EXPOSE 7000 7001 7199 8888 9042 9160 61620 61621
 
 # Volume
-VOLUME ["/var/lib/cassandra"]
+VOLUME ["/opt/cassandra/data", "/opt/cassandra/logs"]
 

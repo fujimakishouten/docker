@@ -1,33 +1,25 @@
-FROM ubuntu:trusty
+FROM alpine:edge
+LABEL maintainer "fujimakishouten <fujimakishouten@fujimakishouten.com>"
 
-MAINTAINER fujimakishouten <info@fujimakishouten.com>
+# Environment variables
+ENV LANGUAE C.UTF-8
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
-# APT
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update
+# Install
+RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && apk update \
+    && apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+    && echo "Asia/Tokyo" > /etc/timezone \
+    && apk del tzdata \
+    && apk add --no-cache php7-fpm php7-intl php7-mbstring php7-opcache php7-xdebug
 
-# Timezone
-RUN echo 'Asia/Tokyo' > /etc/timezone
-RUN dpkg-reconfigure tzdata
-
-# Locale
-RUN locale-gen en_US.UTF-8
-RUN update-locale LANG=en_US.UTF-8
-RUN . /etc/default/locale
-
-# Install PHP
-RUN apt-get install --yes php-fpm php-intl php-mbstring php-xdebug
-RUN mv /etc/php/7.0/fpm /etc/php/7.0/original
-
-
-RUN cp -pr /etc/php/7.0/fpm /etc/php/7.0/fpm.original
-RUN rm -r /etc/php/7.0/fpm/php.ini /etc/php/php7.0/fpm/php-fpm.conf /etc/php/7.0/fpm/pool.d
-
-# APT
-RUN apt-get clean --yes
-
-# Initialize shell
-COPY init.sh /
+# Settings
+COPY ./php.ini /etc/php7/php.ini
+COPY ./php-fpm.conf /etc/php7/php-fpm.conf
+COPY ./www.conf /etc/php7/php-fpm.d/www.conf
+COPY ./init.sh /
 RUN chmod 755 /init.sh
 
 # Entrypoint
@@ -37,5 +29,5 @@ ENTRYPOINT ["/init.sh"]
 EXPOSE 9000
 
 # Volume
-VOLUME ["/data"]
+VOLUME ["/var/www/html", "/var/log/php7"]
 

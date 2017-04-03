@@ -5,22 +5,12 @@
 
 
 
-ln --symbolic /data/conf/nginx.conf /etc/nginx
-ln --symbolic /data/conf/default /etc/nginx/sites-available/default
-
-
-if [ ! -d /data/log ]; then
-    mkdir /data/log
+# PID directory
+if [ ! -d /run/nginx ]; then
+    mkdir /run/nginx
 fi
 
-if [ ! -d /data/www ]; then
-    mkdir /data/www
-fi
-
-ln --symbolic /data/log /var/log/nginx
-ln --symbolic /data/www /var
-
-
+chown -R nginx:nginx /run/nginx
 /usr/sbin/nginx -g "daemon off;"
 
 

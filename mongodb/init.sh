@@ -5,7 +5,19 @@
 
 
 
-/usr/bin/mongod --config /etc/mongodb.conf
+# Database directory
+if [ ! -d /var/lib/mongodb ]; then
+    mkdir /var/lib/mongodb
+fi
+
+# Logs directory
+if [ ! -d /var/log/mongodb ]; then
+    mkdir /var/log/mongodb
+fi
+
+chown -R mongodb:mongodb /var/lib/mongodb
+chown -R mongodb:mongodb /var/log/mongodb
+su -s /bin/sh -c "/usr/bin/mongod --config /etc/conf.d/mongodb.conf" mongodb
 
 
 
@@ -14,3 +26,4 @@
 # c-basic-offset: 4
 # c-hanging-comment-ender-p: nil
 # End:
+
