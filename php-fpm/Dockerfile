@@ -13,7 +13,7 @@ RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositorie
     && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
     && echo "Asia/Tokyo" > /etc/timezone \
     && apk del tzdata \
-    && apk add --no-cache php7-fpm php7-intl php7-mbstring php7-opcache php7-xdebug
+    && apk add --no-cache php7-curl php7-fpm php7-intl php7-json php7-mbstring php7-mcrypt php7-opcache
 
 # Settings
 COPY ./php.ini /etc/php7/php.ini
