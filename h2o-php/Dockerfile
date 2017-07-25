@@ -13,12 +13,10 @@ RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositorie
     && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
     && echo "Asia/Tokyo" > /etc/timezone \
     && apk del tzdata \
-    && apk add --no-cache php7-fpm php7-intl php7-mbstring php7-opcache php7-xdebug
+    && apk add --no-cache  h2o
 
 # Settings
-COPY ./php.ini /etc/php7/php.ini
-COPY ./php-fpm.conf /etc/php7/php-fpm.conf
-COPY ./www.conf /etc/php7/php-fpm.d/www.conf
+COPY ./h2o.conf /etc/h2o.conf
 COPY ./init.sh /
 RUN chmod 755 /init.sh
 
@@ -26,8 +24,8 @@ RUN chmod 755 /init.sh
 ENTRYPOINT ["/init.sh"]
 
 # Expose
-EXPOSE 9000
+EXPOSE 80 443
 
 # Volume
-VOLUME ["/var/www", "/var/log/php7"]
+VOLUME ["/var/www", "/var/log/h2o"]
 

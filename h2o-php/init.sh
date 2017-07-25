@@ -5,17 +5,12 @@
 
 
 
-# Logs directory
-if [ ! -d /var/log/php7 ]; then
-    mkdir /var/log/php7
-fi
-
 # Document root directory
 if [ ! -d /var/www/public ]; then
     mkdir /var/www/public
 fi
 
-/usr/sbin/php-fpm7 --nodaemonize
+/usr/bin/h2o -c /etc/h2o.conf
 
 
 
