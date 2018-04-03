@@ -1,0 +1,39 @@
+version: "3"
+services:
+  mysql:
+    build: ./mysql
+    image: fujimakishouten/mysql
+    container_name: fujimakishouten-mysql
+    entrypoint: /init.sh
+    ports:
+      - 3306:3306
+    volumes:
+      - ../docker-data/lib/mysql:/var/lib/mysql
+      - ../docker-data/log/mysql:/var/log/mysql
+
+  php-fpm:
+    build: ./php-fpm
+    image: fujimakishouten/php-fpm
+    container_name: fujimakishouten-php-fpm
+    entrypoint: /init.sh
+    posts:
+      - 9000:9000
+    links:
+      - mysql
+    volumes:
+      - ../docker-data/www:/var/www
+      - ../docker-data/log/php:/var/log/php7
+
+  h2o:
+    build: ./h2o-php
+    image: fujimakishouten/h2o-php
+    container_name: fujimakishouten-h2o-php
+    entrypoint: /init.sh
+    ports:
+      - 8000:80
+    links:
+      - php-fpm
+    volumes:
+      - ../docker-data/www:/var/www
+      - ../docker-data/log/h2o:/var/log/h2o
+
