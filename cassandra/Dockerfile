@@ -2,7 +2,7 @@ FROM alpine:edge
 LABEL maintainer "fujimakishouten <fujimakishouten@fujimakishouten.com>"
 
 # Cassandra version
-ENV CASSANDRA_VERSION 3.10
+ENV CASSANDRA_VERSION 3.11.2
 
 # Environment variables
 ENV LANGUAE C.UTF-8
