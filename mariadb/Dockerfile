@@ -13,10 +13,12 @@ RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositorie
     && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
     && echo "Asia/Tokyo" > /etc/timezone \
     && apk del tzdata \
-    && apk add --no-cache mysql mysql-client 
+    && apk add --no-cache mariadb mariadb-client 
 
 # Settings
-COPY ./my.cnf /etc/mysql/my.cnf
+#COPY ./my.cnf /etc/mysql/my.cnf
+#COPY ./conf.d /etc/mysql/conf.d
+#COPY ./mariadb.conf.d /etc/mysql/mariadb.conf.d
 
 # Entrypoint
 COPY init.sh /

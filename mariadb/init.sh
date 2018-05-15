@@ -30,7 +30,10 @@ fi
 chown -R mysql:mysql /var/lib/mysql
 chown -R mysql:mysql /var/log/mysql
 chown -R mysql:mysql /run/mysqld
-/usr/bin/mysql_install_db --user=mysql
+if [ -n `ls /var/lib/mysql` ]; then
+    /usr/bin/mysql_install_db --user=mysql --datadir=/var/lib/mysql
+fi
+
 su -s /bin/sh -c "/usr/bin/mysqld_safe & sleep 1" mysql
 echo "GRANT ALL PRIVILEGES ON *.* TO root@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION;" | mysql -u root
 /usr/bin/mysqladmin --user root password $MYSQL_ROOT_PASSWORD
